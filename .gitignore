@@ -1,0 +1,27 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+
+# IDE / OS junk
+.vscode/
+.DS_Store
+
+# Model or data
+*.npy
+*.npz
+*.csv
+*.log
+
+# Output images or results
+*.png
+*.jpg
+*.jpeg
+
+# Temporary files
+temp/
+output/
