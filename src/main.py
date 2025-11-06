@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
 # name & paths
-PIC_NAME = "WIN_20251029_13_53_32_Pro"
+PIC_NAME = "WIN_20251029_13_54_08_Pro"
 
 INPUT_PATH = os.path.join(ROOT_DIR, "pictures for detection", PIC_NAME + ".jpg")
 OUTPUT_MASK_PATH = os.path.join(ROOT_DIR, "data", "output", f"bgsb_{PIC_NAME}_mask.jpg")
