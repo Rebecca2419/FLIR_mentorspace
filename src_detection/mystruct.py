@@ -7,6 +7,7 @@ class Detection:
     centroid: Tuple[int, int]
     bbox: Tuple[int, int, int, int]  # (x, y, w, h)
     contour: List[Tuple[int, int]] = None  # optional
+    possibility: float = None  # optional
 
 @dataclass
 class singleFrameResult:
