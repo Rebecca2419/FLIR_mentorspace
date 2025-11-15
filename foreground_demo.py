@@ -1,4 +1,6 @@
-import cv2, numpy as np
+# demo of foreground detection
+
+import cv2
 
 cam = 1
 min_area_ratio = 0.003
