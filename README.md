@@ -23,7 +23,7 @@
 
 #### In camera settings:
 
-Settings -> Device settings -> Show temperature scale: witch to OFF
+Settings -> Device settings -> Show temperature scale: switch to OFF
 
 ![WIN_20251116_10_02_36_Pro](https://github.com/user-attachments/assets/8ccd2f0b-05ef-4bd9-a856-d9ce4e1bf682)
 
