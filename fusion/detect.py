@@ -3,18 +3,28 @@ import cv2
 
 class DetectCamera:
 
-    def __init__(self, camIndex: int, minAreaRatio=0.003, border=12, blur=(15,15), threshold=32):
+    def __init__(self, camIndex: int, minAreaRatio=0.003, border=5, blur=(15,15), threshold=32):
+        """
+        Args:
+            camIndex: Index of designated camera
+            minAreaRatio: Minimal ratio of ROI area under consideration 
+            border: Boundary dead zone
+            blur: Size used in Gaussian Blur
+            threshold: Minial difference between foreground and background
+        """
         self.camIndex = camIndex
         self.minAreaRatio = minAreaRatio
         self.border = border
         self.blur = blur
         self.threshold = threshold
-
-    def update_background(self):
         self.cap = cv2.VideoCapture(self.camIndex)
         if not self.cap.isOpened():
             raise SystemExit("Unable to open designated camera.")
 
+    def update_background(self):
+        """
+        Update background
+        """
         while True:
             ok, frame = self.cap.read()
             if not ok:
@@ -27,15 +37,19 @@ class DetectCamera:
                 cv2.destroyWindow("background"+str(self.camIndex))
                 break
     
-    """
-    return value: frame, result
-      frame     : original frame
-      result    : [(ROI, massCenter, areaSize), ...]
-        ROI       : (x, y, bw, bh)
-        massCenter: (x,y) or None
-        areaSize  : int or None
-    """
+    
     def detect(self):
+        """
+        Detect foreground objects.
+
+        Returns:
+            (frame, result): 
+                - frame: Original frame
+                - result: List of (ROI, massCenter, areaSize)
+                    - ROI: Bounding box (x, y, w, h)
+                    - massCenter: Mass center (x, y) or None
+                    - areaSize: Area size or None
+        """
         ok, frame = self.cap.read()
         if not ok:
             raise SystemExit("Unable to capture new frame.")
@@ -53,12 +67,12 @@ class DetectCamera:
         mask[:self.border,:] = mask[-self.border:,:] = 0
         mask[:,:self.border] = mask[:,-self.border:] = 0
 
-        min_area = int(self.minAreaRatio * w * h)
+        minArea = int(self.minAreaRatio * w * h)
         cnts, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
         result = []
         for c in cnts:
-            if cv2.contourArea(c) < min_area:
+            if cv2.contourArea(c) < minArea:
                 continue
             x, y, bw, bh = cv2.boundingRect(c)
             ROI = (x, y, bw, bh)
@@ -79,16 +93,17 @@ class DetectCamera:
         return frame, result
     
     def release(self):
+        """
+        Release camera resource
+        """
         self.cap.release()
 
 
+
+# Only for testing purpose
 if __name__ == "__main__":
-    cam1 = DetectCamera(1)
-    cam1.update_background()
 
-    while True:
-        frame, result = cam1.detect()
-
+    def add_detail(frame, result):
         cv2.putText(frame, "Press B to update background", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
         cv2.putText(frame, "Press Q to quit", (10,60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
         for ROI, massCenter, areaSize in result:
@@ -96,12 +111,29 @@ if __name__ == "__main__":
             if massCenter != None:
                 cv2.circle(frame, massCenter, 5, (0,0,255), -1)
                 cv2.putText(frame, str(areaSize), (ROI[0], ROI[1]+ROI[3]), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
-        cv2.imshow("detection", frame)
+    
+
+    cam1 = DetectCamera(1)
+    cam2 = DetectCamera(3)
+
+    cam1.update_background()
+    cam2.update_background()
+
+    while True:
+        frame1, result1 = cam1.detect()
+        add_detail(frame1, result1)
+        cv2.imshow("camera1", frame1)
+
+        frame2, result2 = cam2.detect()
+        add_detail(frame2, result2)
+        cv2.imshow("camera2", frame2) 
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord('q'):
             break
         if key == ord('b'):
             cam1.update_background()
+            cam2.update_background()
 
     cam1.release()
+    cam2.release()
