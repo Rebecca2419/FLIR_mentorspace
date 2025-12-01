@@ -3,7 +3,7 @@ import numpy as np
 import glob
 
 chessboardSize = (8, 5)
-chessBlockLen = 33.0
+chessBlockLen = 46.0
 
 # Load image pairs
 print("Loading image pairs from file...")
