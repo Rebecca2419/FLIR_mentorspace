@@ -3,7 +3,7 @@ import numpy as np
 
 class StereoMatcher:
 
-    def __init__(self, extParamFilename):
+    def __init__(self, extParamFilename, factor):
         data = np.load(extParamFilename)
         self.K1 = data['K1']
         self.K2 = data['K2']
@@ -12,9 +12,9 @@ class StereoMatcher:
         self.R = data['R']
         self.T = data['T']
         self.F = data['F']
-
         self.P1 = self.K1 @ np.hstack([np.eye(3), np.zeros((3, 1))])
         self.P2 = self.K2 @ np.hstack([self.R, self.T])
+        self.factor = factor
 
     def _triangulate(self, pt1, pt2):
         """
@@ -66,6 +66,6 @@ class StereoMatcher:
             
             if bestPt2 is not None:
                 X, Y, Z = self._triangulate(pt1, bestPt2)
-                results.append((int(X * 1.0), int(Z * 1.65)))
+                results.append((int(X * self.factor[0]), int(Z * self.factor[1])))
         
         return results

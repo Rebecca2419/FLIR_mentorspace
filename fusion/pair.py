@@ -4,12 +4,10 @@ from matcher import StereoMatcher
 
 class PairDetecter:
 
-    def __init__(self, camIndex1, camIndex2, coodParamFilename, extParamFilename):
+    def __init__(self, camIndex1, camIndex2, extParamFilename, factor):
         self.cam1 = DetectCamera(camIndex1)
         self.cam2 = DetectCamera(camIndex2)
-        coodParam = np.load(coodParamFilename)
-        self.T_WC = coodParam['T_WC']
-        self.matcher = StereoMatcher(extParamFilename)
+        self.matcher = StereoMatcher(extParamFilename, factor)
     
     def update_background(self):
         self.cam1.update_background()
@@ -24,14 +22,6 @@ class PairDetecter:
 
         origCoodList = self.matcher.match_and_locate(massCenter1, massCenter2, maxDist=100)
         
-        # resultList = []
-        # for origCood in origCoodList:
-        #     P_C = np.array([origCood[0], origCood[1], origCood[2], 1.0], dtype=np.float32).reshape(4, 1)
-        #     P_W = self.T_WC @ P_C
-        #     X, Y, Z, _ = P_W.ravel()
-        #     resultList.append((int(X), int(Y), int(Z)))
-        
-        # return (frame1, frame2), resultList
         return (frame1, frame2), origCoodList
     
     def release(self):
