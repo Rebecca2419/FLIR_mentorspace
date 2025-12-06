@@ -22,8 +22,8 @@ while True:
     roomCood1 = [(camDire1[0] * item[0] + camCood1[0], camDire1[1] * item[1] + camCood1[1]) for item in cood1]
     roomCood2 = [(camDire2[0] * item[0] + camCood2[0], camDire2[1] * item[1] + camCood2[1]) for item in cood2]
 
-    roomCood1 = [item for item in roomCood1 if abs(item[0]) <= maxCood and abs(item[1]) <= maxCood]
-    roomCood1 = [item for item in roomCood2 if abs(item[0]) <= maxCood and abs(item[1]) <= maxCood]
+    # roomCood1 = [item for item in roomCood1 if abs(item[0]) <= maxCood and abs(item[1]) <= maxCood]
+    # roomCood1 = [item for item in roomCood2 if abs(item[0]) <= maxCood and abs(item[1]) <= maxCood]
 
     cv2.putText(frame11, str(roomCood1), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
     cv2.putText(frame21, str(roomCood2), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
@@ -42,7 +42,7 @@ while True:
     cv2.putText(frame22, str(mergedCood), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
 
     cv2.imshow("camera11", frame11)
-    cv2.imshow("camera21", frame21)
+    cv2.imshow("camera12", frame12)
     cv2.imshow("camera21", frame21)
     cv2.imshow("camera22", frame22)
 
