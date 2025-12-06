@@ -3,7 +3,7 @@ import numpy as np
 import glob
 
 chessboardSize = (8, 5)
-chessBlockLen = 33.0
+chessBlockLen = 46.0
 
 # Load images
 print("Loading images from file...")
@@ -54,6 +54,8 @@ ret, K, dist, rvecs, tvecs = \
     )
 
 print("Intrinsic calibration finish.")
+print(K)
+print(dist)
 print("Re-projection error: %.3f px."%ret)
 
 np.savez('int_param.npz', K=K, dist=dist)

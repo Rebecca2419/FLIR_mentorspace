@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 
-chessboardSize = (8, 5)
-chessBlockLen = 46.0
+chessboardSize = (7, 5)
+chessBlockLen = 90.0
 
-cap = cv2.VideoCapture(3)
+cap = cv2.VideoCapture(0)
 scale = 1.46
 
 data = np.load('int_param.npz')
@@ -38,6 +38,8 @@ while True:
     ret, frame = cap.read()
     if not ret:
         raise SystemExit("Unable to capture new frame.")
+    
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
 
     # Crop to fit FOV of IR camera
     h, w = frame.shape[:2]

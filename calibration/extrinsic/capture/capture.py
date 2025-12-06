@@ -2,7 +2,7 @@ import cv2
 import os
 
 scale = 1.46
-chessboardSize = (8, 5)
+chessboardSize = (6, 5)
 
 cap1 = cv2.VideoCapture(3)
 cap2 = cv2.VideoCapture(1)
@@ -19,6 +19,9 @@ while True:
     ret2, frame2 = cap2.read()
     if not ret1 or not ret2:
         raise SystemExit("Unable to capture new frame.")
+    
+    frame1 = cv2.rotate(frame1, cv2.ROTATE_180)
+    frame2 = cv2.rotate(frame2, cv2.ROTATE_180)
 
     # Crop to fit FOV of IR camera
     h, w = frame1.shape[:2]
@@ -26,8 +29,10 @@ while True:
     cropH = int(h / scale)
     startX = (w - cropW) // 2
     startY = (h - cropH) // 2
-    frame1 = cv2.resize(frame1[startY:startY+cropH, startX:startX+cropW], (w, h))
-    frame2 = cv2.resize(frame2[startY:startY+cropH, startX:startX+cropW], (w, h))
+    frame1 = frame1[startY:startY+cropH, startX:startX+cropW]
+    frame2 = frame2[startY:startY+cropH, startX:startX+cropW]
+    # frame1 = cv2.resize(frame1[startY:startY+cropH, startX:startX+cropW], (w, h))
+    # frame2 = cv2.resize(frame2[startY:startY+cropH, startX:startX+cropW], (w, h))
     
     display1 = frame1.copy()
     display2 = frame2.copy()

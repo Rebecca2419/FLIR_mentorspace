@@ -3,7 +3,7 @@ import os
 
 chessboardSize = (8, 5)
 
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(0)
 imgCount = 0
 scale = 1.46
 
@@ -14,6 +14,8 @@ while True:
     ret, frame = cap.read()
     if not ret:
         raise SystemExit("Unable to capture new frame.")
+    
+    frame = cv2.rotate(frame, cv2.ROTATE_180)
 
     # Crop to fit FOV of IR camera
     h, w = frame.shape[:2]
@@ -22,7 +24,7 @@ while True:
     startX = (w - cropW) // 2
     startY = (h - cropH) // 2
     cropped = frame[startY:startY+cropH, startX:startX+cropW]
-    cropped = cv2.resize(cropped, (w, h))
+    # cropped = cv2.resize(cropped, (w, h))
     frame = cropped
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

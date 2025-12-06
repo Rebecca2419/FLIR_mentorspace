@@ -3,8 +3,8 @@ import numpy as np
 
 class StereoMatcher:
 
-    def __init__(self, calib_file='ext_param.npz'):
-        data = np.load(calib_file)
+    def __init__(self, extParamFilename):
+        data = np.load(extParamFilename)
         self.K1 = data['K1']
         self.K2 = data['K2']
         self.dist1 = data['dist1']
@@ -66,6 +66,6 @@ class StereoMatcher:
             
             if bestPt2 is not None:
                 X, Y, Z = self._triangulate(pt1, bestPt2)
-                results.append((int(X), int(Y), int(Z)))
+                results.append((int(X * 1.0), int(Z * 1.65)))
         
         return results

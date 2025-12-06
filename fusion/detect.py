@@ -29,6 +29,7 @@ class DetectCamera:
             ok, frame = self.cap.read()
             if not ok:
                 raise SystemExit("Unable to capture new frame.")
+            frame = cv2.rotate(frame, cv2.ROTATE_180)
             tempFrame = frame.copy()
             cv2.putText(tempFrame, "Press ENTER to update background", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
             cv2.imshow("background"+str(self.camIndex), tempFrame)
@@ -53,6 +54,7 @@ class DetectCamera:
         ok, frame = self.cap.read()
         if not ok:
             raise SystemExit("Unable to capture new frame.")
+        frame = cv2.rotate(frame, cv2.ROTATE_180)
 
         g = cv2.GaussianBlur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), self.blur, 0)
         diff = cv2.absdiff(g, self.base)
@@ -88,8 +90,9 @@ class DetectCamera:
                 massCenter = None
                 areaSize = None
             
-            result.append((ROI, massCenter, areaSize))    
-
+            result.append((ROI, massCenter, areaSize))
+        
+        self.__add_detail(frame, result)
         return frame, result
     
     def release(self):
@@ -98,42 +101,48 @@ class DetectCamera:
         """
         self.cap.release()
 
-
-
-# Only for testing purpose
-if __name__ == "__main__":
-
-    def add_detail(frame, result):
-        cv2.putText(frame, "Press B to update background", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
-        cv2.putText(frame, "Press Q to quit", (10,60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
+    def __add_detail(self, frame, result):
         for ROI, massCenter, areaSize in result:
             cv2.rectangle(frame, (ROI[0],ROI[1]), (ROI[0] + ROI[2], ROI[1] + ROI[3]), (0,255,0), 2)
             if massCenter != None:
                 cv2.circle(frame, massCenter, 5, (0,0,255), -1)
-                cv2.putText(frame, str(areaSize), (ROI[0], ROI[1]+ROI[3]), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
+
+
+
+# # Only for testing purpose
+# if __name__ == "__main__":
+
+#     def add_detail(frame, result):
+#         cv2.putText(frame, "Press B to update background", (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
+#         cv2.putText(frame, "Press Q to quit", (10,60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255,255,255), 2)
+#         for ROI, massCenter, areaSize in result:
+#             cv2.rectangle(frame, (ROI[0],ROI[1]), (ROI[0] + ROI[2], ROI[1] + ROI[3]), (0,255,0), 2)
+#             if massCenter != None:
+#                 cv2.circle(frame, massCenter, 5, (0,0,255), -1)
+#                 cv2.putText(frame, str(areaSize), (ROI[0], ROI[1]+ROI[3]), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255))
     
 
-    cam1 = DetectCamera(1)
-    cam2 = DetectCamera(3)
+#     cam1 = DetectCamera(1)
+#     cam2 = DetectCamera(3)
 
-    cam1.update_background()
-    cam2.update_background()
+#     cam1.update_background()
+#     cam2.update_background()
 
-    while True:
-        frame1, result1 = cam1.detect()
-        add_detail(frame1, result1)
-        cv2.imshow("camera1", frame1)
+#     while True:
+#         frame1, result1 = cam1.detect()
+#         add_detail(frame1, result1)
+#         cv2.imshow("camera1", frame1)
 
-        frame2, result2 = cam2.detect()
-        add_detail(frame2, result2)
-        cv2.imshow("camera2", frame2) 
+#         frame2, result2 = cam2.detect()
+#         add_detail(frame2, result2)
+#         cv2.imshow("camera2", frame2) 
 
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord('q'):
-            break
-        if key == ord('b'):
-            cam1.update_background()
-            cam2.update_background()
+#         key = cv2.waitKey(1) & 0xFF
+#         if key == ord('q'):
+#             break
+#         if key == ord('b'):
+#             cam1.update_background()
+#             cam2.update_background()
 
-    cam1.release()
-    cam2.release()
+#     cam1.release()
+#     cam2.release()
