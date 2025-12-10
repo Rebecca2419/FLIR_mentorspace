@@ -20,7 +20,7 @@ class PairDetecter:
         massCenter1 = [item[1] for item in result1 if item[1] != None]
         massCenter2 = [item[1] for item in result2 if item[1] != None]
 
-        origCoodList = self.matcher.match_and_locate(massCenter1, massCenter2, maxDist=100)
+        origCoodList = self.matcher.match_and_locate(massCenter1, massCenter2, maxDist=50)
         
         return (frame1, frame2), origCoodList
     
