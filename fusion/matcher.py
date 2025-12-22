@@ -3,7 +3,9 @@ import numpy as np
 
 class StereoMatcher:
 
+    # Stereo matcher using calibrated extrinsic parameters
     def __init__(self, extParamFilename, factor):
+        # Load extrinsic calibration parameters
         data = np.load(extParamFilename)
         self.K1 = data['K1']
         self.K2 = data['K2']
@@ -12,20 +14,27 @@ class StereoMatcher:
         self.R = data['R']
         self.T = data['T']
         self.F = data['F']
+
+        # Projection matrices for cameras
         self.P1 = self.K1 @ np.hstack([np.eye(3), np.zeros((3, 1))])
         self.P2 = self.K2 @ np.hstack([self.R, self.T])
+
+        # Scaling factor applied to final coordinates
         self.factor = factor
 
     def _triangulate(self, pt1, pt2):
         """
         (Interal function) Calculate coordinate using triangulation method
         """
+        # Convert image points to required OpenCV format
         p1 = np.array([[pt1]], dtype=np.float32)
         p2 = np.array([[pt2]], dtype=np.float32)
         
+        # Undistort image points using intrinsic parameters
         p1_undist = cv2.undistortPoints(p1, self.K1, self.dist1, P=self.K1)
         p2_undist = cv2.undistortPoints(p2, self.K2, self.dist2, P=self.K2)
         
+        # Perform triangulation to obtain homogeneous 3D point
         points_4d = cv2.triangulatePoints(
             self.P1,
             self.P2,
@@ -33,6 +42,7 @@ class StereoMatcher:
             p2_undist.reshape(2, 1)
         )
         
+        # Convert homogeneous coordinates to Cartesian coordinates
         points_3d = points_4d[:3] / points_4d[3]
         return points_3d[0, 0], points_3d[1, 0], points_3d[2, 0]
     
@@ -51,6 +61,7 @@ class StereoMatcher:
         results = []
         
         for pt1 in points1:
+            # Compute epipolar line in camera 2 for point in camera 1
             p = np.array([pt1[0], pt1[1], 1.0])
             epiline = self.F @ p
             a, b, c = epiline
@@ -59,12 +70,14 @@ class StereoMatcher:
             bestDist = maxDist
             
             for pt2 in points2:
+                # Compute distance from point to epipolar line
                 dist = abs(a*pt2[0] + b*pt2[1] + c) / np.sqrt(a**2 + b**2)
                 if dist < bestDist:
                     bestDist = dist
                     bestPt2 = pt2
             
             if bestPt2 is not None:
+                # Triangulate matched point pair to obtain 3D position
                 X, Y, Z = self._triangulate(pt1, bestPt2)
                 results.append((int(X * self.factor[0]), int(Z * self.factor[1])))
         

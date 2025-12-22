@@ -2,30 +2,41 @@ import cv2
 from pair import PairDetecter
 from datetime import datetime
 
+# Initialize two stereo camera pairs with their extrinsic parameters and scaling factors
 pair1 = PairDetecter(4, 5, "pair1_ext_param.npz", (1.0, 1.45))
 pair2 = PairDetecter(2, 1, "pair2_ext_param.npz", (1.0, 1.65))
 
+# Capture background for both camera pairs
 pair1.update_background()
 pair2.update_background()
 
+# Global coordinates and direction mapping for camera pair 1
 camCood1 = (404, -3625)#(-660, -3800)
 camDire1 = (1, 1)
+
+# Global coordinates and direction mapping for camera pair 2
 camCood2 = (534, 4037)#(1300, 3500)
 camDire2 = (-1, -1)
 
+# Maximum valid coordinate magnitude
 maxCood = 5000
+# Distance threshold for merging duplicate detections
 fusionThreshold = 1000
 
+# Create a log file with timestamped filename
 fileName = datetime.now().strftime("%Y-%m-%d_%H-%M-%S.txt")
 recFile = open(fileName, "w")
 
 while True:
+    # Get detected coordinates from both stereo pairs
     (frame11, frame12), cood1 = pair1.get_coordinate()
     (frame21, frame22), cood2 = pair2.get_coordinate()
 
+    # Transform local camera coordinates to global room coordinates
     tmpRoomCood1 = [(camDire1[0] * item[0] + camCood1[0], camDire1[1] * item[1] + camCood1[1]) for item in cood1]
     tmpRoomCood2 = [(camDire2[0] * item[0] + camCood2[0], camDire2[1] * item[1] + camCood2[1]) for item in cood2]
 
+    # Filter coordinates outside valid room bounds
     roomCood1 = []
     for (x, y) in tmpRoomCood1:
         if (-5000 <= x <= 5000) and (-5000 <= y <= 5000):
@@ -35,9 +46,11 @@ while True:
         if (-5000 <= x <= 5000) and (-5000 <= y <= 5000):
             roomCood2.append((x,y))
 
+    # Overlay detected coordinates on preview frames
     cv2.putText(frame11, str(roomCood1), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
     cv2.putText(frame21, str(roomCood2), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
 
+    # Merge coordinates from both camera pairs, removing duplicates
     mergedCood = roomCood1
     for point in roomCood2:
         isDuplicate = False
@@ -49,9 +62,11 @@ while True:
         if not isDuplicate:
             mergedCood.append(point)
     
+    # Display merged coordinates and record to file
     cv2.putText(frame22, str(mergedCood), (10,60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255,255,255), 2)
     recFile.write(str(mergedCood)+'\n')
 
+    # Show camera previews
     cv2.imshow("camera11", frame11)
     cv2.imshow("camera12", frame12)
     cv2.imshow("camera21", frame21)
@@ -61,9 +76,11 @@ while True:
     if key == ord('q'):
         break
     if key == ord('b'):
+        # Re-capture background when requested
         pair1.update_background()
         pair2.update_background()
 
+# Release resources and close log file
 pair1.release()
 pair2.release()
 recFile.close()
